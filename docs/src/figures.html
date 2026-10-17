@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Figures</title>
+<!-- Every element with a data-figure attribute is rendered to docs/images/<name>.png by build.cjs (2x scale).
+     Fonts: Nunito and Roboto from Google Fonts, Inter for body text (install them locally if offline). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Roboto:wght@400;500&display=swap">
+<style>
+  :root {
+    --ink: #111827; --muted: #4b5563; --soft: #6b7280; --line: #d6dce6;
+    --hv: #2f6db3; --lv: #d98a1e; --dev: #3a4552; --gx: #0e131a; --good: #24834b; --bad: #c9403a;
+    --can: #3b82c4; --brown: #8a5a2b; --gnd: #2e9a47; --res: #b85c00; --warn: #b9650f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #888; font-family: Inter, "Liberation Sans", sans-serif; color: var(--ink); }
+  [data-figure] { background: #fff; position: relative; overflow: hidden; margin: 20px; }
+  .round { font-family: Nunito, Inter, sans-serif; font-weight: 900; }
+  .abs { position: absolute; }
+
+  /* ---------------------------------------------------------------- Victron screens (gui-v2 look) */
+  .gx { font-family: Roboto, Inter, sans-serif; color: #fff; }
+  .bezel { position: absolute; inset: 0; background: #262626; border-radius: 24px; }
+  .screen { position: absolute; inset: 30px 34px; background: #000; overflow: hidden; }
+  .topbar { height: 50px; display: flex; align-items: center; justify-content: center; position: relative; font-size: 15px; }
+  .topbar .time { position: absolute; right: 16px; color: #9b9b9b; }
+  .topbar .icons { position: absolute; left: 16px; display: flex; gap: 18px; align-items: center; }
+  .ico-sw { width: 26px; height: 24px; display: grid; gap: 4px; }
+  .ico-sw i { border: 2px solid #9b9b9b; border-radius: 6px; position: relative; }
+  .ico-sw i::after { content: ""; position: absolute; left: 3px; top: 2px; width: 5px; height: 5px; border-radius: 50%; background: #9b9b9b; }
+  .ico-pane { width: 26px; height: 24px; display: grid; gap: 3px; }
+  .ico-pane i { background: #387dc5; border-radius: 3px; }
+  .cards { position: absolute; top: 56px; display: flex; gap: 16px; }
+  .card { background: #141414; border-radius: 8px; padding: 16px 20px 6px; }
+  .card-title { display: flex; align-items: center; gap: 8px; font-size: 17px; margin-bottom: 18px; }
+  .dev { width: 10px; height: 16px; border: 2px solid #fff; border-radius: 3px; position: relative; }
+  .dev::after { content: ""; position: absolute; left: 1px; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; border: 1px solid #fff; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .item { margin-bottom: 18px; }
+  .item .name { font-size: 16px; margin-bottom: 8px; }
+  .tile { background: #1f1f1f; border-radius: 6px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 18px; }
+  .tile .k { color: #8a8a8a; }
+  .drop { background: #13253c; border: 2px solid #387dc5; border-radius: 6px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 19px; }
+  .chev { width: 12px; height: 12px; border-right: 2px solid #387dc5; border-bottom: 2px solid #387dc5; transform: rotate(45deg); margin-top: -6px; }
+  .stepper { display: grid; grid-template-columns: 56px 1fr 56px; height: 40px; border: 2px solid #387dc5; border-radius: 6px; overflow: hidden; }
+  .stepper span { display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .stepper span:first-child, .stepper span:last-child { background: #13253c; }
+  .stepper span:nth-child(2) { border-left: 2px solid #387dc5; border-right: 2px solid #387dc5; }
+  .stepper u { text-decoration: none; color: #8a8a8a; margin-left: 4px; }
+
+  /* ---------------------------------------------------------------- phone */
+  .phone { position: absolute; inset: 0; background: #111; border-radius: 40px; }
+  .phone .in { position: absolute; inset: 12px; background: #141414; border-radius: 30px; overflow: hidden; }
+  .appbar { background: #2a2a2a; padding: 22px 16px 0; }
+  .appbar .t { display: flex; gap: 26px; align-items: center; font-size: 19px; }
+  .tabs { display: flex; justify-content: space-around; margin-top: 18px; font-size: 14px; color: #d0d0d0; }
+  .tabs span { padding-bottom: 10px; }
+  .tabs .on { color: #fff; border-bottom: 3px solid #f08a24; }
+  .phone .cards { position: static; flex-direction: column; padding: 0 12px; gap: 10px; }
+  .phone .item { margin-bottom: 12px; } .phone .card-title { margin-bottom: 12px; }
+
+  /* ---------------------------------------------------------------- explainer bits */
+  .box { position: absolute; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .devbox { background: var(--dev); color: #fff; }
+  .gxbox { background: var(--gx); color: #fff; }
+  .code { background: #fff; border: 3px solid var(--line); font-family: "DejaVu Sans Mono", monospace; font-size: 19px; white-space: nowrap; }
+  .tr { background: var(--hv); color: #fff; }
+  .label { position: absolute; font-size: 15px; font-weight: 700; letter-spacing: .03em; color: var(--muted); text-transform: uppercase; }
+  .arrow { position: absolute; height: 4px; background: #4b5563; }
+  .arrow::after { content: ""; position: absolute; right: -2px; top: -8px; width: 14px; height: 14px; border-right: 4px solid #4b5563; border-top: 4px solid #4b5563; transform: rotate(45deg); }
+  .step { position: absolute; bottom: 30px; width: 140px; border: 3px solid var(--good); background: #e8f4ec; border-radius: 12px; text-align: center; padding-top: 12px; }
+  .step .n { color: var(--good); font-size: 32px; line-height: 1; }
+  .step b { display: block; font-size: 14.5px; margin: 6px 6px 4px; }
+  .step span { display: block; color: var(--muted); font-size: 13px; padding: 0 8px; }
+  .bat { position: absolute; border: 3px solid #d6dce6; border-radius: 22px; background: #fff; }
+  .bat .fill { position: absolute; border-radius: 12px; color: #fff; display: flex; align-items: center; justify-content: center; }
+  .bat .post { position: absolute; top: -20px; width: 46px; height: 20px; background: #3a4552; border-radius: 6px 6px 0 0; }
+  .dots { position: absolute; height: 0; border-top: 8px dotted; }
+
+  /* ---------------------------------------------------------------- wiring diagrams */
+  .wd { font-family: Inter, sans-serif; }
+  .pin { position: absolute; border: 2.5px solid var(--can); border-radius: 5px; background: #fff; font-size: 16px; display: flex; align-items: center; padding-left: 12px; font-weight: 500; }
+  .pin.off { border-color: #c4cad3; color: #8a929e; background: #f7f8fa; font-weight: 400; }
+  .pin.gnd { background: #12233a; border-color: #12233a; color: #fff; }
+  .wire { position: absolute; }
+</style>
+</head>
+<body>
+
+<!-- ======================================================================= Cerbo screen: readings -->
+<div data-figure="cerbo-readings" class="gx" style="width:1100px;height:668px">
+  <div class="bezel"></div>
+  <div class="screen">
+    <div class="topbar">
+      <div class="icons"><div class="ico-sw"><i></i><i></i></div><div class="ico-pane"><i></i><i></i></div></div>
+      Switches<span class="time">10:42</span>
+    </div>
+    <div class="cards" style="left:37px">
+      <div class="card" style="width:778px;height:468px">
+        <div class="card-title"><span class="dev"></span>DC-DC D2</div>
+        <div class="cols2">
+          <div>
+            <div class="item"><div class="name">Alarm</div><div class="tile"><span class="k">State</span>None</div></div>
+            <div class="item"><div class="name">Direction</div><div class="drop">Automatic<span class="chev"></span></div></div>
+            <div class="item"><div class="name">HV current</div><div class="tile"><span class="k">Value</span>6 A</div></div>
+            <div class="item"><div class="name">HV voltage</div><div class="tile"><span class="k">Value</span>51.2 V</div></div>
+            <div class="item"><div class="name">LV current</div><div class="tile"><span class="k">Value</span>22 A</div></div>
+          </div>
+          <div>
+            <div class="item"><div class="name">LV voltage</div><div class="tile"><span class="k">Value</span>13.4 V</div></div>
+            <div class="item"><div class="name">Status</div><div class="tile"><span class="k">State</span>Autonomous</div></div>
+            <div class="item"><div class="name">Temperature</div><div class="tile"><span class="k">Temperature</span>35 °C</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="width:388px;height:468px">
+        <div class="card-title"><span class="dev"></span>DC-DC D2 settings</div>
+        <div class="item"><div class="name">Boost current limit</div><div class="stepper"><span>−</span><span>30<u>A</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Boost voltage</div><div class="stepper"><span>−</span><span>55.2<u>V</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Buck current limit</div><div class="stepper"><span>−</span><span>100<u>A</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Buck voltage</div><div class="stepper"><span>−</span><span>13.50<u>V</u></span><span>+</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================= Cerbo screen: settings (scrolled right) -->
+<div data-figure="cerbo-settings" class="gx" style="width:1100px;height:668px">
+  <div class="bezel"></div>
+  <div class="screen">
+    <div class="topbar">
+      <div class="icons"><div class="ico-sw"><i></i><i></i></div><div class="ico-pane"><i></i><i></i></div></div>
+      Switches<span class="time">10:42</span>
+    </div>
+    <div class="cards" style="left:-480px">
+      <div class="card" style="width:778px;height:468px">
+        <div class="card-title"><span class="dev"></span>DC-DC D2</div>
+        <div class="cols2">
+          <div>
+            <div class="item"><div class="name">Alarm</div><div class="tile"><span class="k">State</span>None</div></div>
+            <div class="item"><div class="name">Direction</div><div class="drop">Automatic<span class="chev"></span></div></div>
+            <div class="item"><div class="name">HV current</div><div class="tile"><span class="k">Value</span>6 A</div></div>
+            <div class="item"><div class="name">HV voltage</div><div class="tile"><span class="k">Value</span>51.2 V</div></div>
+            <div class="item"><div class="name">LV current</div><div class="tile"><span class="k">Value</span>22 A</div></div>
+          </div>
+          <div>
+            <div class="item"><div class="name">LV voltage</div><div class="tile"><span class="k">Value</span>13.4 V</div></div>
+            <div class="item"><div class="name">Status</div><div class="tile"><span class="k">State</span>Autonomous</div></div>
+            <div class="item"><div class="name">Temperature</div><div class="tile"><span class="k">Temperature</span>35 °C</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="width:428px;height:468px">
+        <div class="card-title"><span class="dev"></span>DC-DC D2 settings</div>
+        <div class="item"><div class="name">Boost current limit</div><div class="stepper"><span>−</span><span>30<u>A</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Boost voltage</div><div class="stepper"><span>−</span><span>55.2<u>V</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Buck current limit</div><div class="stepper"><span>−</span><span>100<u>A</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Buck voltage</div><div class="stepper"><span>−</span><span>13.50<u>V</u></span><span>+</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================= VRM app -->
+<div data-figure="vrm-app" class="gx" style="width:390px;height:1180px;background:transparent">
+  <div class="phone"><div class="in">
+    <div class="appbar">
+      <div class="t"><span style="font-size:24px">←</span>My system</div>
+      <div class="tabs"><span class="on">System</span><span>Data</span><span>Devices</span></div>
+    </div>
+    <div style="padding:16px 18px 10px;font-size:16px">Switches</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-title"><span class="dev"></span>DC-DC D2</div>
+        <div class="item"><div class="name">Alarm</div><div class="tile"><span class="k">State</span>None</div></div>
+        <div class="item"><div class="name">Direction</div><div class="drop">Automatic<span class="chev"></span></div></div>
+        <div class="item"><div class="name">HV current</div><div class="tile"><span class="k">Value</span>6 A</div></div>
+        <div class="item"><div class="name">HV voltage</div><div class="tile"><span class="k">Value</span>51.2 V</div></div>
+        <div class="item"><div class="name">LV current</div><div class="tile"><span class="k">Value</span>22 A</div></div>
+        <div class="item"><div class="name">LV voltage</div><div class="tile"><span class="k">Value</span>13.4 V</div></div>
+        <div class="item"><div class="name">Status</div><div class="tile"><span class="k">State</span>Autonomous</div></div>
+        <div class="item"><div class="name">Temperature</div><div class="tile"><span class="k">Temperature</span>35 °C</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dev"></span>DC-DC D2 settings</div>
+        <div class="item"><div class="name">Boost current limit</div><div class="stepper"><span>−</span><span>30<u>A</u></span><span>+</span></div></div>
+        <div class="item"><div class="name">Boost voltage</div><div class="stepper"><span>−</span><span>55.2<u>V</u></span><span>+</span></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ======================================================================= translator (control edition) -->
+<div data-figure="explained-translator" style="width:1024px;height:390px">
+  <div class="label" style="left:30px;top:30px">The D2 tells you things</div>
+  <div class="box devbox round" style="left:30px;top:62px;width:140px;height:88px;font-size:34px">D2</div>
+  <div class="box code" style="left:192px;top:72px;width:246px;height:68px">44 44 E0 07 D0 53 …</div>
+  <div class="arrow" style="left:452px;top:104px;width:44px"></div>
+  <div class="box tr" style="left:506px;top:66px;width:150px;height:80px"><span class="round" style="font-size:22px">translator</span><span style="font-size:14px;opacity:.9">(in the Cerbo)</span></div>
+  <div class="arrow" style="left:668px;top:104px;width:44px"></div>
+  <div class="box gxbox" style="left:722px;top:56px;width:240px;height:100px;align-items:flex-start;padding-left:20px;font-size:16px;line-height:1.6">
+    <div>12 V side 13.6 V 20 A</div><div>48 V side 51.2 V</div><div>Temperature 35 °C</div></div>
+
+  <div class="label" style="left:30px;top:198px">You tell the D2 things (only if you choose to)</div>
+  <div class="box gxbox" style="left:30px;top:232px;width:140px;height:82px"><div style="background:#3a7ec6;border-radius:8px;padding:8px 26px" class="round"><span style="font-size:19px">Buck</span></div></div>
+  <div class="arrow" style="left:180px;top:272px;width:44px"></div>
+  <div class="box tr" style="left:232px;top:234px;width:150px;height:80px"><span class="round" style="font-size:22px">translator</span><span style="font-size:14px;opacity:.9">(in the Cerbo)</span></div>
+  <div class="arrow" style="left:390px;top:272px;width:44px"></div>
+  <div class="box code" style="left:442px;top:240px;width:268px;height:68px">01 64 38 4C 80 …</div>
+  <div class="arrow" style="left:718px;top:272px;width:44px"></div>
+  <div class="box devbox round" style="left:770px;top:232px;width:140px;height:82px;font-size:34px">D2</div>
+  <div style="position:absolute;left:300px;top:328px;width:560px;text-align:center;color:var(--muted);font-size:15px">"Charge the 12 V side to 13.5 V, up to 100 A", sent 100 times a second</div>
+</div>
+
+<!-- ======================================================================= testing steps (control edition) -->
+<div data-figure="explained-testing-steps" style="width:1024px;height:439px">
+  <div class="round" style="position:absolute;left:115px;top:26px;color:var(--good);font-size:16px">The Cerbo sends nothing: can't change what the D2 does</div>
+  <div style="position:absolute;left:30px;top:50px;width:604px;border-top:4px solid var(--good)"></div>
+  <div class="step" style="left:30px;height:84px"><div class="n round">1</div><b>Pretend D2</b></div>
+  <div class="step" style="left:187px;height:131px"><div class="n round">2</div><b>Check wires, power off</b><span>60 Ω? no shorts?</span></div>
+  <div class="step" style="left:344px;height:178px"><div class="n round">3</div><b>Just listen</b><span>numbers match your meter?</span></div>
+  <div class="step" style="left:501px;height:225px"><div class="n round">4</div><b>Install in Automatic</b><span>leave it a day</span></div>
+  <div class="step" style="left:658px;height:272px;border-color:var(--warn);background:#fcf2e4"><div class="n round" style="color:var(--warn)">5</div><b>First orders, training wheels</b><span>small limits, 5-minute timer, hand on the breaker</span></div>
+  <div class="step" style="left:815px;height:319px;border-color:var(--hv);background:#fff"><div class="n round" style="color:var(--hv)">6</div><b>Everyday use</b><span>real limits, timer off</span></div>
+</div>
+
+<!-- ======================================================================= take control -->
+<div data-figure="explained-take-control" style="width:580px;height:260px">
+  <div class="box gxbox" style="left:27px;top:57px;width:164px;height:113px;padding:12px;gap:8px;border-radius:18px">
+    <div class="round" style="width:100%;background:#3a7ec6;border-radius:8px;padding:6px 0;font-size:16px">Buck</div>
+    <div style="display:flex;gap:6px;width:100%"><div style="flex:1;background:#245789;border-radius:8px;padding:6px 0;font-size:14px">Off</div><div style="flex:1;background:#245789;border-radius:8px;padding:6px 0;font-size:14px">Boost</div></div>
+  </div>
+  <div class="dots" style="left:212px;top:109px;width:140px;border-top-width:16px;color:var(--res)"></div>
+  <svg class="abs" style="left:346px;top:98px" width="30" height="34" viewBox="0 0 30 34"><path d="M4 4 L24 17 L4 30" fill="none" stroke="#b85c00" stroke-width="6"/></svg>
+  <div class="box devbox round" style="left:381px;top:63px;width:150px;height:100px;font-size:34px">D2</div>
+  <div style="position:absolute;left:0;right:0;top:188px;text-align:center;color:var(--muted);font-size:17px">"Do this" sent 100 times a second</div>
+</div>
+
+<!-- ======================================================================= today / after -->
+<div data-figure="explained-today" style="width:580px;height:370px">
+  <div class="box gxbox round" style="left:202px;top:26px;width:156px;height:98px;font-size:34px;border-radius:14px">?</div>
+  <div class="abs" style="left:277px;top:128px;height:58px;border-left:5px dashed var(--bad)"></div>
+  <svg class="abs" style="left:259px;top:143px" width="42" height="34" viewBox="0 0 42 34"><path d="M4 4 L38 30 M38 4 L4 30" stroke="#c9403a" stroke-width="5" stroke-linecap="round"/></svg>
+  <div class="bat" style="left:31px;top:192px;width:136px;height:130px"><div class="fill round" style="inset:32px 10px 10px 10px;background:var(--hv);font-size:26px">48 V</div></div>
+  <div class="dots" style="left:168px;top:241px;width:46px;color:var(--lv)"></div>
+  <div class="box devbox round" style="left:217px;top:201px;width:126px;height:87px;font-size:28px;border-radius:12px">D2</div>
+  <div class="dots" style="left:345px;top:241px;width:46px;color:var(--lv)"></div>
+  <div class="bat" style="left:392px;top:223px;width:136px;height:99px"><div class="fill round" style="inset:32px 10px 10px 10px;background:var(--lv);font-size:22px">12 V</div></div>
+</div>
+
+<div data-figure="explained-after" style="width:580px;height:370px">
+  <div class="box gxbox" style="left:202px;top:26px;width:156px;height:98px;border-radius:14px;align-items:flex-start;padding-left:22px">
+    <div style="font-size:12px;color:#b7bec8">DC-DC D2</div><div class="round" style="font-size:26px">13.6 V</div></div>
+  <div class="abs" style="left:362px;top:74px;width:50px;border-top:4px dashed #4b5563"></div>
+  <div class="abs" style="left:420px;top:28px;width:64px;height:104px;border:3px solid #d6dce6;border-radius:12px"><div style="position:absolute;inset:12px 9px;background:var(--gx);border-radius:5px;color:#7fb2ea;font-size:11px;display:flex;align-items:center;justify-content:center">13.6V</div></div>
+  <div class="abs" style="left:419px;top:142px;font-size:15px;color:var(--muted)">VRM app</div>
+  <div class="abs" style="left:277px;top:128px;height:70px;border-left:7px solid var(--can)"></div>
+  <div class="bat" style="left:31px;top:192px;width:136px;height:130px"><div class="fill round" style="inset:32px 10px 10px 10px;background:var(--hv);font-size:26px">48 V</div></div>
+  <div class="dots" style="left:168px;top:241px;width:46px;color:var(--lv)"></div>
+  <div class="box devbox round" style="left:217px;top:201px;width:126px;height:87px;font-size:28px;border-radius:12px">D2</div>
+  <div class="dots" style="left:345px;top:241px;width:46px;color:var(--lv)"></div>
+  <div class="bat" style="left:392px;top:223px;width:136px;height:99px"><div class="fill round" style="inset:32px 10px 10px 10px;background:var(--lv);font-size:22px">12 V</div></div>
+</div>
+
+<!-- ======================================================================= overview -->
+<div data-figure="explained-overview" style="width:1024px;height:500px">
+  <div class="round abs" style="right:656px;top:62px;font-size:24px">Cerbo GX</div>
+  <div class="abs" style="right:656px;top:96px;font-size:16px;color:var(--muted);text-align:right;line-height:1.35">the screen for your<br>whole system</div>
+  <div class="box gxbox" style="left:387px;top:34px;width:238px;height:140px;border-radius:18px">
+    <div style="position:absolute;inset:14px;background:#141c25;border-radius:8px;padding:16px 16px;text-align:left">
+      <div style="font-size:13px;color:#c5cbd3">DC-DC D2</div><div class="round" style="font-size:30px">13.6 V</div><div style="font-size:14px;color:#7fb2ea">Charging</div>
+      <div style="position:absolute;right:16px;top:44px;width:44px;height:34px;background:#3a7ec6;border-radius:4px"></div></div></div>
+  <div class="abs" style="left:504px;top:174px;height:72px;border-left:6px dashed var(--can)"></div>
+  <div class="abs round" style="left:524px;top:194px;font-size:16px;color:var(--can)">the new cable</div>
+  <div class="abs" style="left:524px;top:216px;font-size:14px;color:var(--muted)">(this is what we add)</div>
+  <div class="bat" style="left:60px;top:156px;width:244px;height:256px"><div class="post" style="left:44px"></div><div class="post" style="left:150px"></div><div class="fill round" style="inset:64px 14px 14px 14px;background:var(--hv);font-size:44px">48 V</div></div>
+  <div class="box devbox" style="left:405px;top:260px;width:208px;height:138px;border-radius:18px"><span class="round" style="font-size:38px">D2</span><span style="font-size:16px">the energy pump</span></div>
+  <div class="dots" style="left:322px;top:290px;width:76px;color:var(--lv);border-top-width:9px"></div>
+  <div class="dots" style="left:626px;top:290px;width:76px;color:var(--lv);border-top-width:9px"></div>
+  <svg class="abs" style="left:700px;top:278px" width="24" height="32" viewBox="0 0 24 32"><path d="M4 4 L18 16 L4 28" fill="none" stroke="#d98a1e" stroke-width="5"/></svg>
+  <div class="dots" style="left:316px;top:360px;width:80px;color:var(--hv);border-top-width:9px"></div>
+  <svg class="abs" style="left:298px;top:348px" width="24" height="32" viewBox="0 0 24 32"><path d="M20 4 L6 16 L20 28" fill="none" stroke="#2f6db3" stroke-width="5"/></svg>
+  <div class="dots" style="left:620px;top:360px;width:90px;color:var(--hv);border-top-width:9px"></div>
+  <div class="bat" style="left:727px;top:254px;width:208px;height:158px"><div class="post" style="left:30px"></div><div class="post" style="left:132px"></div><div class="fill round" style="inset:48px 14px 14px 14px;background:var(--lv);font-size:32px">12 V</div></div>
+  <div class="abs round" style="left:60px;width:244px;top:426px;text-align:center;font-size:21px">Big house battery</div>
+  <div class="abs round" style="left:700px;width:262px;top:426px;text-align:center;font-size:21px">Small chassis batteries</div>
+  <div class="abs" style="left:380px;width:258px;top:414px;text-align:center;font-size:17px;font-weight:700;line-height:1.55">
+    <div style="color:var(--lv)">Buck: big helps small →</div><div style="color:var(--hv)">← Boost: small helps big</div></div>
+</div>
+
+<!-- ======================================================================= the cable (plain-words version) -->
+<div data-figure="explained-cable" style="width:1024px;height:426px">
+  <div class="box gxbox round" style="left:31px;top:59px;width:226px;height:178px;justify-content:flex-start;padding-top:14px;font-size:22px;border-radius:18px">Cerbo GX
+    <div style="position:absolute;left:28px;top:70px;width:68px;height:52px;background:#d9d9d9;border-radius:6px"><div style="margin:9px 14px;height:20px;background:#5a5a5a"></div></div>
+    <div style="position:absolute;left:124px;top:70px;width:68px;height:52px;background:#d9d9d9;border-radius:6px"><div style="position:absolute;left:10px;top:36px;width:48px;height:40px;background:#2c2c2c;border-radius:4px"></div></div>
+  </div>
+  <div class="abs" style="left:89px;top:178px;width:8px;height:180px;background:var(--can);border-radius:4px"></div>
+  <div class="abs" style="left:89px;top:350px;width:285px;height:8px;background:var(--can)"></div>
+  <div class="abs" style="left:96px;top:248px;width:160px;text-align:center;font-size:15px;line-height:1.35"><b style="font-size:16px">End cap #1</b><br><span style="color:var(--muted)">(the little plug from the Cerbo's box)</span></div>
+  <div class="abs" style="left:132px;top:370px;font-size:14px;color:var(--muted)">network cable, one end cut off</div>
+  <svg class="abs" style="left:370px;top:100px" width="360" height="270" viewBox="0 0 360 270">
+    <path d="M4 254 C 80 254, 70 20, 160 20 L 356 20" fill="none" stroke="#8a5a2b" stroke-width="9" stroke-dasharray="10 6"/>
+    <path d="M4 254 C 80 254, 70 20, 160 20 L 356 20" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="6 10" stroke-dashoffset="-8"/>
+    <path d="M4 254 C 90 254, 90 66, 170 66 L 356 66" fill="none" stroke="#8a5a2b" stroke-width="9"/>
+    <path d="M4 254 C 80 254, 90 206, 170 206 L 356 206" fill="none" stroke="#2e9a47" stroke-width="9" stroke-dasharray="10 6"/>
+    <path d="M330 20 L330 30 L340 34 L320 40 L340 46 L320 52 L340 58 L330 62 L330 66" fill="none" stroke="#b85c00" stroke-width="3"/>
+  </svg>
+  <div class="abs" style="left:524px;top:90px;font-size:15px;font-weight:700">talk wire (CAN-H)</div>
+  <div class="abs" style="left:524px;top:140px;font-size:15px;font-weight:700">talk wire (CAN-L)</div>
+  <div class="abs" style="left:470px;top:190px;width:232px;text-align:right;color:var(--res);font-size:15px;line-height:1.35"><b>End cap #2</b><br>120 Ω across the talk wires</div>
+  <div class="abs" style="left:524px;top:276px;font-size:15px;font-weight:700">"zero" wire (ground)</div>
+  <div class="box devbox" style="left:710px;top:59px;width:232px;height:290px;justify-content:flex-start;padding-top:10px;border-radius:24px"><span class="round" style="font-size:24px">D2</span></div>
+  <div class="pin" style="left:724px;top:105px;width:156px;height:28px;border:0;font-weight:700;font-size:14px">pin 1 CAN-H</div>
+  <div class="pin" style="left:724px;top:151px;width:156px;height:28px;border:0;font-weight:700;font-size:14px">pin 2 CAN-L</div>
+  <div class="pin off" style="left:724px;top:197px;width:156px;height:28px;border:0;font-size:14px;background:#55616f;color:#c7ced7">pins 3–6 empty</div>
+  <div class="pin gnd" style="left:724px;top:290px;width:156px;height:28px;font-weight:700;font-size:14px;background:#111827">GND (ground)</div>
+  <div class="abs" style="left:724px;top:236px;width:210px;font-size:12.5px;color:#d7dde5;line-height:1.35">No power wires: it powers itself from its big 12 V / 48 V terminals</div>
+</div>
+
+<!-- ======================================================================= wiring: the whole connection -->
+<div data-figure="wiring-connection" class="wd" style="width:1092px;height:360px">
+  <div class="box gxbox" style="left:12px;top:10px;width:262px;height:184px;justify-content:flex-start;padding-top:14px;background:#13233a;border-radius:14px">
+    <b style="font-size:20px">Cerbo GX</b><span style="font-size:15px;color:#c7d0dc;margin-top:4px">CAN port (e.g. BMS-Can)</span>
+    <div style="position:absolute;left:40px;top:90px;width:78px;height:56px;background:#dcdcdc;border-radius:4px"><div style="margin:10px 15px;height:26px;background:#5a5a5a"></div></div>
+    <div style="position:absolute;left:146px;top:90px;width:78px;height:56px;background:#dcdcdc;border-radius:4px"><div style="margin:10px 15px;height:26px;background:#5a5a5a"></div><div style="position:absolute;left:11px;top:38px;width:56px;height:44px;background:#2c2c2c;border-radius:4px"></div></div>
+  </div>
+  <div class="abs" style="left:110px;top:200px;width:200px;text-align:center;font-size:15px;line-height:1.35"><b>VE.Can terminator</b><br><span style="color:var(--soft)">in the 2nd socket</span></div>
+  <svg class="abs" style="left:0;top:0" width="1092" height="360" viewBox="0 0 1092 360">
+    <path d="M90 160 L90 290 Q90 308 108 308 L580 308 Q598 308 598 290 L598 112 Q598 94 616 94 L676 94" fill="none" stroke="#3b82c4" stroke-width="11"/>
+    <path d="M638 94 L638 124 L676 124" fill="none" stroke="#3b82c4" stroke-width="6"/>
+    <path d="M598 236 L676 236" stroke="#2e9a47" stroke-width="4"/>
+    <circle cx="598" cy="236" r="5" fill="#2e9a47"/>
+  </svg>
+  <div class="abs" style="left:614px;top:212px;font-size:14px;color:var(--gnd);font-weight:600">GND</div>
+  <div class="abs" style="left:300px;top:280px;font-size:15px;font-weight:600">Network cable, one end cut off</div>
+  <div class="abs" style="left:100px;top:322px;font-size:14px;color:var(--soft)">white/brown = CAN_H, brown = CAN_L, white/green = CAN ground</div>
+  <div class="abs" style="left:676px;top:10px;width:290px;height:290px;background:#f1f4f8;border:2px solid #d6dce6;border-radius:14px"></div>
+  <div class="abs" style="left:676px;top:20px;width:290px;text-align:center"><b style="font-size:20px">Nomadic D2</b><div style="font-size:14px;color:var(--soft);margin-top:2px">6-pin signal connector</div></div>
+  <div class="pin" style="left:696px;top:78px;width:246px;height:31px">1 CAN_H</div>
+  <div class="pin" style="left:696px;top:112px;width:246px;height:31px">2 CAN_L</div>
+  <div class="pin off" style="left:696px;top:150px;width:246px;height:62px;display:block;padding-top:6px;font-size:14px">3, 4, 5, 6 not connected<div style="font-size:12px;margin-top:3px">reserved on the D2 (no KL15 / KL30)</div></div>
+  <div class="pin gnd" style="left:696px;top:222px;width:246px;height:31px">GND (M8 terminal)</div>
+  <svg class="abs" style="left:942px;top:86px" width="40" height="50" viewBox="0 0 40 50"><path d="M0 8 L18 8 L18 13 L30 17 L8 22 L30 27 L8 32 L30 37 L18 40 L18 42 L0 42" fill="none" stroke="#b85c00" stroke-width="2.5"/></svg>
+  <div class="abs" style="left:986px;top:92px;color:var(--res);font-size:14px;line-height:1.3"><b>120 Ω</b><br>resistor</div>
+  <div class="abs" style="left:676px;top:308px;width:400px;font-size:13px;color:var(--muted);line-height:1.4">The D2 powers its controller from its LV+ or HV+ terminal: no separate 12 V supply wires.</div>
+</div>
+
+<!-- ======================================================================= wiring: which wire goes where -->
+<div data-figure="wiring-pins" class="wd" style="width:1107px;height:429px">
+  <div class="abs" style="left:28px;top:12px;font-size:17px;font-weight:700">RJ45 plug pin (Cerbo end)</div>
+  <div class="abs" style="left:712px;top:12px;font-size:17px;font-weight:700">At the D2</div>
+  <svg class="abs" style="left:0;top:0" width="1107" height="429" viewBox="0 0 1107 429">
+    <defs>
+      <pattern id="ws-or" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="16" height="16" fill="#fff"/><rect width="8" height="16" fill="#fbc79a"/></pattern>
+      <pattern id="ws-bl" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="16" height="16" fill="#fff"/><rect width="8" height="16" fill="#a4bdee"/></pattern>
+      <pattern id="ws-gr" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="10" height="10" fill="#fff"/><rect width="5" height="10" fill="#2e9a47"/></pattern>
+      <pattern id="ws-br" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="10" height="10" fill="#fff"/><rect width="5" height="10" fill="#8a5a2b"/></pattern>
+    </defs>
+    <rect x="104" y="60" width="106" height="18" rx="9" fill="url(#ws-or)" stroke="#ddd"/>
+    <rect x="104" y="103" width="106" height="18" rx="9" fill="#fbc79a"/>
+    <rect x="104" y="189" width="106" height="18" rx="9" fill="#a4bdee"/>
+    <rect x="104" y="232" width="106" height="18" rx="9" fill="url(#ws-bl)" stroke="#ddd"/>
+    <rect x="104" y="275" width="106" height="18" rx="9" fill="#a3d4ac"/>
+    <path d="M104 155 L610 155 C 660 155, 660 180, 712 180" fill="none" stroke="#2e9a47" stroke-width="18"/>
+    <path d="M104 155 L610 155 C 660 155, 660 180, 712 180" fill="none" stroke="url(#ws-gr)" stroke-width="14"/>
+    <path d="M104 325 L610 325 C 660 325, 660 292, 712 292" fill="none" stroke="#8a5a2b" stroke-width="18"/>
+    <path d="M104 325 L610 325 C 660 325, 660 292, 712 292" fill="none" stroke="url(#ws-br)" stroke-width="14"/>
+    <path d="M104 368 L610 368 C 660 368, 660 400, 712 400" fill="none" stroke="#8a5a2b" stroke-width="18"/>
+    <path d="M980 290 L1012 290 L1012 318 L1026 324 L1000 334 L1026 344 L1000 354 L1026 364 L1012 370 L1012 398 L980 398" fill="none" stroke="#b85c00" stroke-width="3"/>
+  </svg>
+  <div class="abs" style="left:28px;top:56px;color:#9aa3ae;font-size:17px;line-height:43px">Pin 1<br>Pin 2<br><b style="color:var(--ink)">Pin 3</b><br>Pin 4<br>Pin 5<br>Pin 6<br><b style="color:var(--ink)">Pin 7</b><br><b style="color:var(--ink)">Pin 8</b></div>
+  <div class="abs" style="left:228px;top:56px;color:#9aa3ae;font-size:16px;line-height:43px">not used: cut short and insulate<br>not used<br><br>not used<br>not used<br>not used</div>
+  <div class="abs" style="left:378px;top:122px;font-size:16px">white/green = <b>CAN ground</b></div>
+  <div class="abs" style="left:378px;top:294px;font-size:16px">white/brown = <b>CAN_H</b></div>
+  <div class="abs" style="left:378px;top:336px;font-size:16px">brown = <b>CAN_L</b></div>
+  <div class="box" style="left:712px;top:156px;width:268px;height:48px;border-radius:8px;background:#12233a;color:#fff"><b style="font-size:17px">Common ground</b><span style="font-size:13px;color:#c7d0dc">D2 GND terminal or ground bus</span></div>
+  <div class="box" style="left:712px;top:270px;width:268px;height:42px;border-radius:8px;border:2.5px solid #12233a;background:#fff"><b style="font-size:17px">D2 pin 1 CAN_H</b></div>
+  <div class="box" style="left:712px;top:378px;width:268px;height:42px;border-radius:8px;border:2.5px solid #12233a;background:#fff"><b style="font-size:17px">D2 pin 2 CAN_L</b></div>
+  <div class="abs" style="left:1032px;top:322px;color:var(--res);font-size:13px;line-height:1.3"><b style="font-size:15px">120 Ω</b><br>at the D2</div>
+  <div class="abs" style="left:712px;top:222px;width:330px;font-size:13px;color:var(--soft)">D2 pins 3–6: leave empty (reserved, no KL15/KL30)</div>
+</div>
+
+<!-- ======================================================================= wiring: the two connectors -->
+<div data-figure="wiring-connectors" class="wd" style="width:1050px;height:420px">
+  <div class="abs" style="left:46px;top:14px;width:306px;height:204px;background:#eaf0f6;border:3px solid #8aa6c0;border-radius:18px"></div>
+  <div class="abs" style="left:76px;top:28px;display:flex;gap:14px">
+    <i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i><i style="display:block;width:20px;height:66px;background:#d4a637;border-radius:3px"></i></div>
+  <div class="abs" style="left:76px;top:108px;display:flex;gap:14px;font-size:19px;font-weight:700">
+    <span style="width:20px;text-align:center">1</span><span style="width:20px;text-align:center">2</span><span style="width:20px;text-align:center;color:var(--gnd)">3</span><span style="width:20px;text-align:center">4</span><span style="width:20px;text-align:center">5</span><span style="width:20px;text-align:center">6</span><span style="width:20px;text-align:center;color:var(--brown)">7</span><span style="width:20px;text-align:center;color:var(--brown)">8</span></div>
+  <div class="abs" style="left:46px;top:164px;width:306px;text-align:center;font-size:17px;color:var(--muted)">gold contacts facing you</div>
+  <div class="abs" style="left:148px;top:218px;width:102px;height:76px;background:var(--can)"></div>
+  <div class="abs" style="left:20px;top:304px;width:360px;text-align:center;font-size:16px;color:var(--muted)">cable pointing down, clip at the back</div>
+  <div class="abs" style="left:20px;top:346px;width:380px;text-align:center;font-size:16px;color:var(--muted)"><b style="color:#374151">RJ45 plug (Cerbo end)</b>: pin 1 is on the left.</div>
+
+  <div class="abs" style="left:552px;top:40px;width:258px;height:190px;background:#e9edf1;border:3px solid #6b7785;border-radius:96px"></div>
+  <div class="abs" style="left:663px;top:24px;width:38px;height:24px;background:#e9edf1;border:3px solid #6b7785;border-radius:5px"></div>
+  <div class="abs" style="left:600px;top:88px;display:flex;gap:20px">
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#a0a7b0;font-size:18px">4</b>
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#a0a7b0;font-size:18px">5</b>
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#a0a7b0;font-size:18px">6</b></div>
+  <div class="abs" style="left:600px;top:146px;display:flex;gap:20px">
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--can);font-size:18px">1</b>
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--can);font-size:18px">2</b>
+    <b style="width:40px;height:30px;border:3px solid #111827;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#a0a7b0;font-size:18px">3</b></div>
+  <div class="abs" style="left:818px;top:76px;font-size:18px;line-height:1.5"><b style="color:var(--can)">1</b> CAN_H<br><b style="color:var(--can)">2</b> CAN_L<br><span style="color:#8a929e"><b>3–6</b> none<br><span style="font-size:14px">(reserved, no<br>KL15 / KL30)</span></span></div>
+  <div class="abs" style="left:520px;top:252px;width:330px;text-align:center;font-size:16px;color:var(--muted);line-height:1.5">layout as drawn in the D2 manual<br>(facing the D2's connector)</div>
+  <div class="abs" style="left:480px;top:346px;width:520px;text-align:center;font-size:16px;color:var(--muted);line-height:1.6"><b style="color:#374151">D2 6-pin signal connector</b> (TE 1-967616-1). Check the numbers moulded on the connector before you crimp.</div>
+</div>
+
+</body>
+</html>

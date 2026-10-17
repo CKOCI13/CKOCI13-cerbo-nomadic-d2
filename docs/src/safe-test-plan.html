@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nomadic D2 DC-DC Converter Driver - Safe Test Plan</title>
+<link rel="stylesheet" href="print.css">
+</head>
+<body>
+<div class="kicker">Safe test plan · control edition v1.4</div>
+<h1>Testing the D2 on the Cerbo,<br>one safe step at a time</h1>
+<div class="rule"></div>
+<p>Each stage only adds a little risk, and only after the stage before it has passed. Stages 1–4 can't change what the D2 does at all,
+because the Cerbo sends it nothing. Stop at the first thing that looks wrong.</p>
+
+<div class="panel amber"><b>Before stage 5 on a D2:</b> this driver was written for the D1's CAN interface (NI-TLN-CONTROLS-DCDCCAN-R1).
+The D2 manual (Rev D) doesn't list its CAN messages. Stages 1–4 only listen, so they are safe either way. Don't send the D2 commands
+(stage 5) until Nomadic has confirmed that it obeys EMS_DCDC_CTRL (0x018) the same way as the D1.</div>
+
+<div class="cols">
+  <div class="panel blue"><h3>What protects you</h3><ul>
+    <li>The D2 itself: it stops on 12 V side over 16–18 V or under 8 V, 48 V side over 58–60 V or under 24 V, over 213 A, a short, or a board temperature over 120 °C (D2 manual)</li>
+    <li>Your BMS and fuses on HV+ and LV+</li>
+    <li>The driver's limits in config.ini, and the test timer</li>
+    <li><b>Your emergency stop: the fuse or breaker on a power lead.</b> The D2 has no KL15 to switch off. Opening the breaker on its LV+ or HV+ lead stops conversion immediately, whatever the Cerbo is doing</li></ul></div>
+  <div class="panel green"><h3>Before you start</h3><ul>
+    <li>Fuses on HV+ and LV+ (D2 manual)</li>
+    <li>A breaker or fuse on LV+ or HV+ you can reach quickly while testing</li>
+    <li>A multimeter, plus a DC clamp meter if you have one</li>
+    <li>Know your batteries' maximum charge voltages (12 V chassis and 48 V)</li>
+    <li>The Cerbo's battery monitor in view (48 V current)</li>
+    <li>The values on your D2's label: Nomadic can configure each unit differently</li></ul></div>
+</div>
+
+<table>
+  <tr><th style="width:12%">Stage</th><th>What</th><th>Risk</th></tr>
+  <tr><td>1</td><td>Simulation on the Cerbo</td><td>None: no converter, nothing sent on CAN</td></tr>
+  <tr><td>2</td><td>Wiring check, everything off</td><td>None: no power</td></tr>
+  <tr><td>3</td><td>Listen only</td><td>None: the Cerbo sends nothing</td></tr>
+  <tr><td>4</td><td>Installed in Automatic</td><td>None: the Cerbo sends nothing, and the D2 works as before</td></tr>
+  <tr><td>5</td><td>First commands with guard rails (after Nomadic confirms the CAN interface)</td><td>Low: small limits, 5-minute timer, hand on the breaker</td></tr>
+  <tr><td>6</td><td>Normal use</td><td>Only after stage 5 passes</td></tr>
+</table>
+
+<h2 class="page"><span class="num">1</span>Simulation: no converter at all</h2>
+<p>In Cerbo Setup, choose <b>9</b>. The real driver runs on your Cerbo against a pretend D2, and no CAN socket is ever opened. A real installation keeps running beside it.</p>
+<table class="check"><tr><th>Check</th><th>OK</th></tr>
+  <tr><td>"DC-DC D2 (SIMULATED)" appears in the Cerbo's switch pane, and in VRM's Switches</td><td></td></tr>
+  <tr><td>Its web page opens at <b>http://&lt;Cerbo IP&gt;:8089</b></td><td></td></tr>
+  <tr><td>In Automatic the pretend 12 V side slowly drops. Below 12.5 V, Status changes to Autonomous and it charges back to about 13.4 V</td><td></td></tr>
+  <tr><td>Buck: Status changes to Buck and the 12 V side climbs to your Buck voltage (13.5 V). Off: the current goes to zero</td><td></td></tr>
+  <tr><td>Boost: the 48 V side rises a little, the 12 V side drops, and boost stops at 12.3 V</td><td></td></tr>
+  <tr><td>Change the set-points and limits: values outside config.ini are refused</td><td></td></tr>
+</table>
+<p>Stop with Ctrl+C. The simulated device disappears. The pretend D2 follows the manual's logic, but it can't tell you how the real one reacts to commands. That's what stage 5 is for.</p>
+
+<h2><span class="num">2</span>Wiring check, everything off</h2>
+<table class="check"><tr><th>Check</th><th>OK</th></tr>
+  <tr><td>Fuses or breakers open on <b>both</b> LV+ and HV+ (the D2 powers itself from either side)</td><td></td></tr>
+  <tr><td>Signal plug: only pins 1 (CAN_H) and 2 (CAN_L) used; pins 3–6 empty (no old D1 KL15/KL30 wires)</td><td></td></tr>
+  <tr><td>Continuity: RJ45 pin 7 to white/brown, pin 8 to brown, pin 3 to white/green (guide step 2b)</td><td></td></tr>
+  <tr><td>No continuity (no beep) between any of the three network-cable wires and LV+ or HV+</td><td></td></tr>
+  <tr><td>CAN ground (white/green) to the D2 GND terminal: beeps</td><td></td></tr>
+  <tr><td>RJ45 not in the Cerbo: white/brown to brown reads about 120 Ω (your resistor at the D2)</td><td></td></tr>
+  <tr><td>RJ45 in the Cerbo, with the VE.Can terminator in the other socket: about 60 Ω</td><td></td></tr>
+</table>
+
+<h2><span class="num">3</span>Listen only</h2>
+<p>Power the D2 as normal (fuses or breakers on LV+ and HV+ closed). In Cerbo Setup choose <b>2</b> (find), then <b>3</b> (watch). The Cerbo sends nothing.</p>
+<table class="check"><tr><th>Check</th><th>What you saw</th><th>OK</th></tr>
+  <tr><td>Converter found, at the right speed (if it reports bus errors, switch speed as the guide says). If nothing is heard at all, ask Nomadic for the D2's CAN details before going on</td><td></td><td></td></tr>
+  <tr><td>12 V side reading within about 0.2 V of your meter on the D2's LV+ to GND</td><td></td><td></td></tr>
+  <tr><td>48 V side reading within about 0.5 V of your meter on HV+ to GND</td><td></td><td></td></tr>
+  <tr><td>No alarms, or only alarms that make sense (for example low voltage when the battery really is low)</td><td></td><td></td></tr>
+</table>
+
+<h2><span class="num">4</span>Installed in Automatic</h2>
+<p>Choose <b>4</b> (install). The driver starts in Automatic and still sends nothing. Leave it running for a day.</p>
+<table class="check"><tr><th>Check</th><th>OK</th></tr>
+  <tr><td>Cards on the Cerbo, in VRM and on the web page, with sensible readings</td><td></td></tr>
+  <tr><td>The D2 behaves exactly as before: buck when the 12 V side is low, standby otherwise</td><td></td></tr>
+</table>
+
+<h2 class="page"><span class="num">5</span>First commands, with guard rails</h2>
+<p><b>Only once Nomadic has confirmed the D2 accepts EMS_DCDC_CTRL.</b> Prepare: in Cerbo Setup choose <b>1</b>, set these test values, save, then choose <b>4</b>:</p>
+<table>
+  <tr><th>config.ini line</th><th>Test value</th><th>Why</th></tr>
+  <tr><td><code>test_timer</code></td><td>5</td><td>Buck/Boost switch to Off after 5 minutes</td></tr>
+  <tr><td><code>buck_current_limit_max</code></td><td>20</td><td>Small current while testing</td></tr>
+  <tr><td><code>boost_current_limit_max</code></td><td>10</td><td>Small current while testing</td></tr>
+  <tr><td><code>boost_voltage</code></td><td>Your 48 V battery voltage now + 0.5 V</td><td>Boost can only nudge it</td></tr>
+  <tr><td><code>boost_voltage_max</code></td><td>Your 48 V battery voltage now + 1 V</td><td>Nobody can set more</td></tr>
+</table>
+<p>Conditions: 48 V side between 41 and 58 V; 12 V batteries healthy; someone at the LV+ or HV+ breaker; a meter on the D2's 12 V terminals.
+Do each step, watch for 1–2 minutes, and fill in the table.</p>
+<table class="check">
+  <tr><th style="width:5%">#</th><th style="width:20%">Choose</th><th>Expect</th><th style="width:18%">What you saw</th><th style="width:6%">OK</th></tr>
+  <tr><td>5a</td><td>Off</td><td>Status: Standby/Idle. 12 V current about 0</td><td></td><td></td></tr>
+  <tr><td>5b</td><td>Automatic</td><td>Status: back to the D2's own behaviour within a few seconds</td><td></td><td></td></tr>
+  <tr><td>5c</td><td>Buck (13.5 V, ≤ 20 A)</td><td>Status: Buck. 12 V current ≤ 20 A (check with the clamp meter, and note which way is +). The 12 V side rises toward 13.5 V and never above about 13.7 V</td><td></td><td></td></tr>
+  <tr><td>5d</td><td>Automatic</td><td>Back to the D2's own behaviour</td><td></td><td></td></tr>
+  <tr><td>5e</td><td>Boost (now + 0.5 V, ≤ 10 A)</td><td>Status: Boost. 48 V current ≤ 10 A. The 48 V side rises a little and stops at the target. The 12 V side drops (it's the source). After 5 minutes the test timer switches to Off</td><td></td><td></td></tr>
+  <tr><td>5f</td><td>Automatic</td><td>Back to the D2's own behaviour</td><td></td><td></td></tr>
+  <tr><td>5g</td><td>Buck, then unplug the CAN cable</td><td>The hand-back test (guide Step 6): does the D2 keep going, stop, or return to its own logic? Plug it back in, then choose Automatic</td><td></td><td></td></tr>
+</table>
+<div class="panel red"><b>Stop at once (open the LV+ or HV+ breaker) if:</b> any current goes above the limit you set; any voltage goes above your batteries'
+limits; a red Fault appears; the board temperature climbs fast (above about 80 °C); or anything smells, gets hot or sounds wrong. Then switch the
+Cerbo to Automatic before you close the breaker again. If the D2 then seems stuck on the last command, open the breakers on <b>both</b> LV+ and HV+
+for a few seconds to restart its controller.</div>
+
+<h2><span class="num">6</span>Normal use</h2>
+<table class="check"><tr><th>Check</th><th>OK</th></tr>
+  <tr><td>Set <code>test_timer = 0</code>, and set the limits to what your wiring, fuses, batteries and the D2's label allow (option 1, then 4)</td><td></td></tr>
+  <tr><td>Put <code>boost_voltage</code> back to your 48 V battery's charge voltage</td><td></td></tr>
+  <tr><td>Use Automatic for everyday running, at least until you know how the D2 handles losing CAN (step 5g)</td><td></td></tr>
+  <tr><td>Send Nomadic what you saw in 5g, and which way the current sign went in 5c</td><td></td></tr>
+</table>
+<p style="margin-top:18pt">Tested and signed off by: <span class="write" style="min-width:200pt"></span> &nbsp; Date: <span class="write" style="min-width:90pt"></span></p>
+</body>
+</html>
