@@ -51,12 +51,23 @@ You can work with it from:
 ## 2. Bitrate and port profile
 
 The D2 talks at either 250 or 500 kbit/s, and the GX port must match it. On the GX, go to
-**Settings → Connectivity → (your CAN port) → CAN-bus profile** and choose **"Up, but no services (250 kbit/s)"**.
+**Settings → Connectivity → (your CAN port) → CAN-bus profile** and choose **"VE.Can (250 kbit/s)"** (the default).
 If `--scan` reports bus errors but no frames, the D2 is at the other speed: switch to
-"Up, but no services (500 kbit/s)".
+**"CAN-bus BMS LV (500 kbit/s)"** (called "CAN-bus BMS (500 kbit/s)" on older firmware).
+
+Victron's own services on the port use 29-bit (extended) CAN IDs; the D2 uses 11-bit (standard) IDs, and the
+driver only listens for those, so they share the port without trouble.
+
+**"Up, but no services"** (250 or 500 kbit/s) would bring the port up with no Victron services at all, but the
+Cerbo screen (gui-v2, Venus OS v3.80+) hides it and won't let you choose it. If you want it anyway, set it over
+SSH, using the port name from `--scan` (for example `vecan1` or `can1`); 5 = 250 kbit/s, 8 = 500 kbit/s:
+
+```sh
+dbus -y com.victronenergy.settings /Settings/Canbus/vecan1/Profile SetValue 5
+```
 
 On a Cerbo GX MK2 the second port's menu is **VE.Can port 2** (some firmware still calls it BMS-Can port).
-On an **original Cerbo GX**, the BMS-Can port can't be set to "Up, but no services": its only choices are
+On an **original Cerbo GX**, the BMS-Can port is fixed: its only choices are
 **CAN-bus BMS (500 kbit/s)** and disabled. Leave it on CAN-bus BMS (500 kbit/s). It works only if the D2 talks
 at 500 kbit/s; if `--scan` reports bus errors there, the D2 is at 250 kbit/s, so use the VE.Can port instead.
 

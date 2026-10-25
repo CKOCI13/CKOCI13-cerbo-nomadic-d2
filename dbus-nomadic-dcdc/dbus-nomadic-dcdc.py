@@ -35,7 +35,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import nomadic_can as nc
 
-VERSION = '1.4.1'
+VERSION = '1.4.2'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VELIB_PATHS = (
     os.path.join(BASE_DIR, 'ext', 'velib_python'),
@@ -1269,8 +1269,10 @@ def run_scan(configured, seconds=3.0):
     elif not found and wrong_speed:
         name, bitrate = wrong_speed[0]
         other = {250000: '500', 500000: '250'}.get(bitrate, 'other')
+        profile = {'250': 'VE.Can (250 kbit/s)', '500': 'CAN-bus BMS LV (500 kbit/s)'}.get(
+            other, 'the other speed')
         print('Something is talking on %s at a different speed. On the Cerbo, set that port\'s CAN-bus '
-              'profile to "Up, but no services (%s kbit/s)" and run this again.' % (name, other))
+              'profile to "%s" and run this again.' % (name, profile))
     elif not found:
         print('The converter was not heard on any port. Check that the D2 has a live source on its LV+ or '
               'HV+ terminal (it powers itself from them; it has no KL15/KL30), that CAN-H and CAN-L are on '
