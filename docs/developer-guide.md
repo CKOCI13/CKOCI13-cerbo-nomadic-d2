@@ -304,6 +304,9 @@ GitHub runs them on every push (see [`.github/workflows/tests.yml`](../.github/w
 7. **Docs:** edit [`docs/src/installation-guide.html`](src/installation-guide.html),
    [`docs/src/safe-test-plan.html`](src/safe-test-plan.html) or the pictures in [`docs/src/figures.html`](src/figures.html),
    then rebuild with `npm install playwright` (once) and `node docs/src/build.cjs`.
+   The wiring pictures (`wiring-*.png`, `explained-cable.png`) come from [`docs/src/wiring.html`](src/wiring.html),
+   which is the same file in all four repositories apart from `data-model` (D1 or D2): rebuild them with
+   `node docs/src/build-wiring.cjs`.
 8. **On a real system,** follow the [Safe Test Plan](safe-test-plan.pdf).
 
 ## Open questions and ideas
