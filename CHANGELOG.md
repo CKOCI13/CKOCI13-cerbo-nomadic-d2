@@ -8,6 +8,7 @@ What changed in each version of the driver (`VERSION` in `dbus-nomadic-dcdc/dbus
 - **Start-up script fix (USB stick and normal installs):** Venus OS only runs `/data/rc.local` when it is executable, and when another add-on ends that file with `exit 0`, a line added after it never runs. `install.sh` now puts its line before the first top-level `exit`, moves it there if an older version left it after one, and always makes the file executable. New tests cover it, and the USB file was checked against Victron's own `update-data.sh`.
 - **USB file names:** the README and guide now warn that a browser-renamed file such as `... (1).tar.gz` is skipped by the Cerbo (names with spaces don't work) and must be renamed back.
 - **Boost current limit explained:** `boost_current_limit` is counted on the 48 V side, so the 12 V cable and breaker carry up to about 5 times as many amps (30 A boost is about 154 A on the 12 V side at worst). The README, `config.ini` and the guide now give the conversion and a worked example for a 150 A breaker.
+- **Current limits preset for a stock Grand Design LTV1** (2 AWG cable on a 150 A fuse, kept to 120 A): `buck_current_limit_max = 120`, `boost_current_limit_max = 23` (about 118 A on the 12 V side at worst), and Boost now starts at 20 A. Raise them only if your cable and fuse are bigger.
 
 ## 1.4.1 (2026-10-17): test release
 

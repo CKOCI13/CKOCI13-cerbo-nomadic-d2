@@ -164,7 +164,9 @@ The driver is careful by design:
 - **It starts in Automatic,** and sends the D2 nothing at all. The D2 keeps working exactly as before until
   you choose otherwise.
 - **Every value is checked against limits** that you set in [`config.ini`](dbus-nomadic-dcdc/config.ini).
-  The defaults are the D2 manual's own ranges: 10–13.5 V buck target, 42–57.8 V boost target, 178 A buck and 57 A boost.
+  The voltage limits are the D2 manual's own ranges (10–13.5 V buck target, 42–57.8 V boost target). The current
+  limits are set for a stock Grand Design LTV1 (2 AWG cable on a 150 A fuse): 120 A buck and 23 A boost, which
+  keeps the 12 V cable under 120 A either way. They only apply while the Cerbo commands Buck or Boost.
   Check the label on your D2 too: Nomadic can configure each unit (and each side) differently, and the manual
   says the label, not the manual, is the authority.
 - **Changing between buck and boost** always passes through Off for a second.
@@ -200,14 +202,21 @@ The worst case is a full 48 V battery (58 V) with the 12 V side sagging to 12.3 
 | `boost_current_limit` (48 V side) | 12 V-side current, typical (55 V, 13.4 V) | Worst case (58 V, 12.3 V) |
 |---|---|---|
 | 15 A | about 67 A | about 77 A |
-| 20 A | about 89 A | about 103 A |
-| 23 A | about 103 A | about 118 A |
-| 30 A (the default) | about 134 A | about 154 A |
+| 20 A (the default) | about 89 A | about 103 A |
+| 23 A (the default maximum) | about 103 A | about 118 A |
+| 30 A | about 134 A | about 154 A |
 | No limit (Automatic, factory setting) | up to about 200 A (2.5 kW) | about 220 A |
 
 **Example:** a 12 V cable protected by a **150 A breaker**, kept at 80 % = 120 A, gives
 `boost_current_limit_max = 23` (120 × 12.3 × 0.92 ÷ 58). Measure with a clamp meter on the 12 V cable during the
 Safe Test Plan's boost step to confirm, because efficiency drops at high power and the real current can be higher.
+
+**Stock Grand Design LTV1.** The shipped `config.ini` is already set for its 2 AWG cable and 150 A fuse:
+`buck_current_limit_max = 120` and `boost_current_limit_max = 23`, so nobody can choose more. Left on its own the
+D2 can draw well over 150 A from the 12 V side (up to about 200 A boosting, 178 A bucking), more than that cable
+and fuse are meant for. The limit only applies while the Cerbo commands **Buck** or **Boost**: in **Automatic**
+the Cerbo sends nothing and the D2 uses its own factory limits. If you've upgraded the cable and fuse, raise the
+two `_max` values to match (80 % of the new fuse, converted for boost as above).
 
 **What you give up.** While the Cerbo commands Buck, the D2 no longer decides by itself: it charges the 12 V side
 to your Buck voltage and won't boost or rest on its own. In **Automatic** the Cerbo sends nothing, so **no limit
