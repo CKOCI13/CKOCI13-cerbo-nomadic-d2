@@ -23,7 +23,7 @@ The D2 manual (Rev D) doesn't list its CAN messages. Stages 1–4 only listen, s
 
 <div class="cols">
   <div class="panel blue"><h3>What protects you</h3><ul>
-    <li>The D2 itself: it stops on 12 V side over 16–18 V or under 8 V, 48 V side over 58–60 V or under 24 V, over 213 A, a short, or a board temperature over 120 °C (D2 manual)</li>
+    <li>The D2 protects itself (D2 manual). It stops if the 12 V side goes over 16–18 V or under 8 V, the 48 V side goes over 58–60 V or under 24 V, the current goes over 213 A, there's a short, or it gets hotter than 120 °C inside</li>
     <li>Your BMS and fuses on HV+ and LV+</li>
     <li>The driver's limits in config.ini, and the test timer</li>
     <li><b>Your emergency stop: the fuse or breaker on a power lead.</b> The D2 has no KL15 to switch off. Opening the breaker on its LV+ or HV+ lead stops conversion immediately, whatever the Cerbo is doing</li></ul></div>
@@ -116,8 +116,8 @@ for a few seconds to restart its controller.</div>
 
 <h2 class="page"><span class="num">6</span>Automatic with limits</h2>
 <p>Prepare: choose <b>1</b>, set <code>automatic = limited</code> and keep the small test limits from stage 5, save, then choose <b>4</b>. Choose
-<b>Automatic</b>. The Cerbo now chooses buck, boost or standby by the D2 manual's rules (buck below 12.5 V, boost from 13.5 V until 12.3 V),
-waits 2 seconds before each change, and sends your limits every 10 ms. Keep a clamp meter on the 12 V cable and a hand on the breaker.</p>
+<b>Automatic</b>. The Cerbo now chooses buck, boost or standby by the D2 manual's rules: buck below 12.5 V, boost from 13.5 V until 12.3 V.
+It waits 2 seconds before each change, and it sends your limits every 10 ms. Keep a clamp meter on the 12 V cable and a hand on the breaker.</p>
 <table class="check">
   <tr><th style="width:5%">#</th><th style="width:22%">Do</th><th>Expect</th><th style="width:18%">What you saw</th><th style="width:6%">OK</th></tr>
   <tr><td>6a</td><td>Engine off, 12 V side 12.5–13.5 V</td><td>Status: Standby. Web page: "Automatic with limits: Standby (Off)"</td><td></td><td></td></tr>
