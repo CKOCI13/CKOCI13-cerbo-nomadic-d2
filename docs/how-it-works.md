@@ -38,18 +38,21 @@ Your **Cerbo GX** is the screen for your whole power system. Right now it can't 
 
 ## The phone line (the cable)
 
-![The cable: two talk wires, a ground wire and an end cap at each end](images/explained-cable.png)
+![The cable: two talk wires joined with two lever connectors, and an end cap at each end](images/explained-cable.png)
 
 - **Two talk wires** (CAN-H and CAN-L) carry the messages. They're twisted together like a braid, which keeps out
   electrical noise.
-- **The "zero" wire** (ground) makes both ends agree on what zero volts means.
+- **No "zero" wire.** The Cerbo and the D2 already share the van's negative, so they agree on what zero volts
+  means without an extra ground wire.
+- **Two lever connectors** (like WAGO 221) join the talk wires to the D2's own labelled CAN-H and CAN-L wires. No
+  crimping and no opening its plug.
 - **The end caps** (120 Ω resistors) stop messages bouncing back off the ends of the line, like the foam wall at
   the end of a swimming lane. There must be exactly two: one at the Cerbo (a small plug that comes in the Cerbo's
   box) and one at the D2. The D1 had none built in and the D2's manual doesn't mention one, so you add a
   resistor there (measure first: about 60 Ω between the talk wires means both caps are in).
 - **No power wires.** The older D1 needed two extra 12 V wires ("brain power" KL30 and "wake-up" KL15). The D2
-  doesn't: it powers its own brain from its big 12 V or 48 V terminals. Only the two talk wires go to its plug
-  (pins 1 and 2); the other four pins stay empty.
+  doesn't: it powers its own brain from its big 12 V or 48 V terminals. It only has the two labelled talk
+  wires, CAN-H and CAN-L.
 
 ## The translator
 
