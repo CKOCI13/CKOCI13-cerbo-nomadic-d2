@@ -201,6 +201,20 @@ item against them:
 - Writes from the GX, VRM or MQTT go through the same `Controller.update()` checks. A refused value returns an
   error to the writer, and the GUI snaps back.
 
+### Temperature (`TemperatureWatch`, `TemperatureSensor`)
+
+- `TemperatureWatch` turns the board temperature into 0 ok / 1 warning / 2 alarm from `[temperature]` (°C), with
+  3 °C hysteresis. It feeds `/Alarms/HighTemperature`, the Alarm item (two extra entries at the end of
+  `ALARM_LABELS`, after the D2's own alarms; level 2 makes `/Status` 1) and the web page. It is display only:
+  the Controller never sees it.
+- `/Dc/0/Temperature` is not published for `dcdc`: `gui-v2` labels it "Battery temperature" on a DC-DC converter's
+  page (`PageDcDcConverter.qml`). For `alternator` it is ("Alternator temperature", `PageAlternatorModel.qml`).
+- Victron's `venus-platform` (`alarm_item.cpp`) only turns `/Alarms/HighTemperature` into a notification for
+  alternators (`createDcMeterAlarms`), not for DC-DC converters (`createDcdcAlarms` has only `/ErrorCode`).
+- `TemperatureSensor` is a second D-Bus service, `com.victronenergy.temperature.nomadic_<interface>`, on its own
+  private bus connection. Type 5 (water heater) because `EnvironmentTab.qml` sizes each gauge by type and only
+  that one (0–100 °C) fits a working converter. `/TemperatureType` is its one writable path, kept in `ui.json`.
+
 ## The web page and its API
 
 `class WebApp` serves [`webui.html`](../dbus-nomadic-dcdc/webui.html) and two endpoints:
@@ -212,6 +226,8 @@ item against them:
 | `POST /api/control` | JSON body with any of `direction`, `buck_voltage`, `boost_voltage`, `buck_current_limit`, `boost_current_limit`, `precharge`, `precharge_voltage`. Returns the new status, or `400` with an error message |
 
 - With `password` set in `config.ini`, every request needs HTTP Basic authentication (any user name).
+- With no password, the page is **view-only**: `GET` works, `POST /api/control` returns `403`, and
+  `/api/status` has `read_only: true` so the page greys out its controls.
 - `POST` requires `Content-Type: application/json`. A browser has to ask permission before sending that to
   another site, and this server never grants it, so other web pages can't send commands through a visitor's browser.
 - Bodies are limited to 4 KB.
@@ -275,7 +291,9 @@ Port names differ between Cerbo models (`can0`/`can1` on the original, `vecan0`/
 USB-stick install can't run `--scan`, so the default is `interface = auto`. `AutoCanBus` wraps `CanBus`: its first
 `recv()` (in the rx thread) calls `find_converter()` repeatedly, which opens a filtered, listen-only socket on each
 CAN interface in `/sys/class/net` for one second and accepts the first port with at least `AUTO_MIN_FRAMES`
-standard-ID frames carrying the converter's IDs (other traffic, such as a battery BMS on 0x35x, doesn't count).
+8-byte standard-ID frames carrying the converter's IDs, including both 0x066 and 0x088 (`AUTO_REQUIRED_IDS`).
+Other traffic, such as a battery BMS on 0x35x, doesn't count, and neither does a stray frame on another bus that
+happens to use one of the converter's IDs.
 It then binds that port for good, writes it into `cfg['can']['interface']` (so the web page and `/Mgmt/Connection`
 show it) and logs it. The D-Bus service is `nomadic_auto`. Until a port is found, `send()` returns False and transmits nothing.
 
