@@ -201,6 +201,20 @@ item against them:
 - Writes from the GX, VRM or MQTT go through the same `Controller.update()` checks. A refused value returns an
   error to the writer, and the GUI snaps back.
 
+### Temperature (`TemperatureWatch`, `TemperatureSensor`)
+
+- `TemperatureWatch` turns the board temperature into 0 ok / 1 warning / 2 alarm from `[temperature]` (°C), with
+  3 °C hysteresis. It feeds `/Alarms/HighTemperature`, the Alarm item (two extra entries at the end of
+  `ALARM_LABELS`, after the D2's own alarms; level 2 makes `/Status` 1) and the web page. It is display only:
+  the Controller never sees it.
+- `/Dc/0/Temperature` is not published for `dcdc`: `gui-v2` labels it "Battery temperature" on a DC-DC converter's
+  page (`PageDcDcConverter.qml`). For `alternator` it is ("Alternator temperature", `PageAlternatorModel.qml`).
+- Victron's `venus-platform` (`alarm_item.cpp`) only turns `/Alarms/HighTemperature` into a notification for
+  alternators (`createDcMeterAlarms`), not for DC-DC converters (`createDcdcAlarms` has only `/ErrorCode`).
+- `TemperatureSensor` is a second D-Bus service, `com.victronenergy.temperature.nomadic_<interface>`, on its own
+  private bus connection. Type 5 (water heater) because `EnvironmentTab.qml` sizes each gauge by type and only
+  that one (0–100 °C) fits a working converter. `/TemperatureType` is its one writable path, kept in `ui.json`.
+
 ## The web page and its API
 
 `class WebApp` serves [`webui.html`](../dbus-nomadic-dcdc/webui.html) and two endpoints:
