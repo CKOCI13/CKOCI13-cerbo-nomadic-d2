@@ -23,7 +23,7 @@ The D2 manual (Rev D) doesn't list its CAN messages. Stages 1–4 only listen, s
 
 <div class="cols">
   <div class="panel blue"><h3>What protects you</h3><ul>
-    <li>The D2 protects itself (D2 manual). It stops if the 12 V side goes over 16–18 V or under 8 V, the 48 V side goes over 58–60 V or under 24 V, the current goes over 213 A, there's a short, or it gets hotter than 120 °C inside</li>
+    <li>The D2 protects itself (D2 manual). It stops if the 12 V side goes over 16–18 V or under 8 V, the 48 V side goes over 58–60 V or under 24 V, the current goes over 213 A, there's a short, or it gets hotter than 248 °F (120 °C) inside</li>
     <li>Your BMS and fuses on HV+ and LV+</li>
     <li>The driver's limits in config.ini, and the test timer</li>
     <li><b>Your emergency stop: the fuse or breaker on a power lead.</b> The D2 has no KL15 to switch off. Opening the breaker on its LV+ or HV+ lead stops conversion immediately, whatever the Cerbo is doing</li></ul></div>
@@ -110,7 +110,7 @@ Do each step, watch for 1–2 minutes, and fill in the table.</p>
   <tr><td>5g</td><td>Buck, then unplug the CAN cable</td><td>The hand-back test (guide Step 6): does the D2 keep going, stop, or return to its own logic? Plug it back in, then choose Automatic</td><td></td><td></td></tr>
 </table>
 <div class="panel red"><b>Stop at once (open the LV+ or HV+ breaker) if:</b> any current goes above the limit you set; any voltage goes above your batteries'
-limits; a red Fault appears; the board temperature climbs fast (above about 80 °C); or anything smells, gets hot or sounds wrong. Then choose
+limits; a red Fault appears; the board temperature climbs fast (above about 176 °F / 80 °C); or anything smells, gets hot or sounds wrong. Then choose
 <b>Off</b> on the Cerbo before you close the breaker again. If the D2 then seems stuck on the last command, open the breakers on <b>both</b> LV+ and HV+
 for a few seconds to restart its controller.</div>
 
